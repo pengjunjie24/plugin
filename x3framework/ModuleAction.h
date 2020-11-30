@@ -40,7 +40,7 @@ namespace x3plugin
             //从插件管理器中查找插件
             assert(!_hmod);//调用load时确保插件未加载
             std::string fullfilename = PathOperation::getFullfilename(folder, filename);
-            _hmod = findHandleModule(filename);
+            _hmod = findHandleModule(fullfilename);
             _loadnew = !_hmod;//若在插件管理器中找到代表插件已经被加载
 
             //当前插件未加载
@@ -69,7 +69,8 @@ namespace x3plugin
         HMODULE getModule() const { return _hmod; }
 
         //通过函数名得到函数得到函数指针
-        PROC getFunc(std::string& funcName) const { return _hmod ? getProcAddress(_hmod, funcName) : NULL; }
+        PROC getFunc(const std::string& funcName) const { return _hmod ? getProcAddress(_hmod, funcName) : NULL; }
+        static PROC getManageFunc(const std::string& funcName) { return s_manageMod ? getProcAddress(s_manageMod, funcName) : NULL; }
 
         static HMODULE getManageMod() { return s_manageMod; }
 

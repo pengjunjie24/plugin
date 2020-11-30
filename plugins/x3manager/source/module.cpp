@@ -10,9 +10,6 @@
 
 namespace x3plugin
 {
-    HMODULE ModuleAction::s_manageMod = NULL;
-    const std::string ModuleAction::s_manageName = "x3manager.pln";
-
     XBEGIN_DEFINE_MODULE()
         XDEFINE_CLASSMAP_ENTRY_SINGLETON(CManager)
     XEND_DEFINE_MODULE()

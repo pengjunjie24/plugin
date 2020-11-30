@@ -18,9 +18,18 @@ namespace x3plugin
     public:
         static IObject* create(int64_t iid)
         {
+            if (!Instance())
+            {
+                static std::mutex s_mutex;
+                std::lock_guard<std::mutex> lock(s_mutex);
+                if (!Instance())
+                {
+                    SingletonObject<Cls>* p = new SingletonObject<Cls>();
+                    Instance() = p;
+                }
+            }
             IObject* ret = NULL;
-            instance()->queryObject(iid, &ret);
-
+            Instance()->queryObject(iid, &ret);
             return ret;
         }
 
@@ -58,18 +67,25 @@ namespace x3plugin
         }
 
     private:
-        SingletonObject()
-            :_refcount(1)
-        {
-        }
-
-        static SingletonObject<Cls>*& instance()
+        static SingletonObject<Cls>*& Instance()
         {
             static SingletonObject<Cls>* obj = NULL;
             return obj;
         }
 
+        SingletonObject()
+            : _refcount(1)
+        {
+        }
+
+        ~SingletonObject()
+        {
+            if (Instance())
+            {
+                delete(Instance());
+                Instance() = NULL;
+            }
+        }
         mutable std::atomic<int32_t> _refcount;
-        std::mutex _mutex;
     };
 }

@@ -3,10 +3,12 @@
 
 CSimple::CSimple()
 {
+    printf("PLS::CSimple() construct\n");
 }
 
 CSimple::~CSimple()
 {
+    printf("~PLS::CSimple() disstruct\n");
 }
 
 int CSimple::add(int a, int b) const

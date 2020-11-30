@@ -14,7 +14,7 @@ namespace x3plugin
     class ClassEntry
     {
     public:
-        typedef std::shared_ptr<ClassEntry> sptr;
+        //typedef std::shared_ptr<ClassEntry> sptr;
 
         ClassEntry(const std::string& className,
                    const std::string& clsid,

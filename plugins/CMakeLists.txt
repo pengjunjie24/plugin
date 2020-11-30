@@ -15,10 +15,7 @@ configure_file (
   @ONLY
 )
 
+add_subdirectory(consoledemo)
 add_subdirectory(x3manager)
 add_subdirectory(plsimple)
 add_subdirectory(pltempl)
-
-aux_source_directory(. srcs)
-add_executable(consoledemo ${srcs})
-target_link_libraries(consoledemo dl)

@@ -8,9 +8,11 @@ XEND_DEFINE_MODULE()
 
 OUTAPI bool x3InitializePlugin()
 {
+    printf("plt module init\n");
     return true;
 }
 
 OUTAPI void x3UninitializePlugin()
 {
+    printf("plt module un init\n");
 }

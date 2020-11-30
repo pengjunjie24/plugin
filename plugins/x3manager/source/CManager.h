@@ -21,7 +21,7 @@ namespace x3plugin
         //删除插件管理器中插件
         virtual void unregisterPlugin(Creator creator) = 0;
         //创建其他插件实例
-        virtual bool createFromOthers(const char* clsid, int64_t iid, IObject** p) = 0;
+        virtual bool createFromOthers(const std::string& clsid, int64_t iid, IObject** p) = 0;
         //通过插件名获取插件
         virtual HMODULE findModuleByFileName(const std::string& filename) = 0;
     };

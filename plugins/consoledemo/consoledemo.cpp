@@ -2,14 +2,16 @@
 #include <plsimple/interface/isimple.h>
 #include <x3framework/Objptr.hpp>
 #include <x3framework/Useplugins.h>
-#include <x3config.h>
+#include "../x3config.h"
 
 #include <string>
 #include <vector>
 
 void test()
 {
+
     x3plugin::Object<ISimple> plsCls(plsClsidSimple);
+#if 1
     if (plsCls)
     {
         printf("The plugin is loaded (%s in %s).\n",
@@ -22,6 +24,7 @@ void test()
     {
         printf("The plugin is not loaded.\n");
     }
+#endif
 }
 
 int main()
@@ -31,6 +34,6 @@ int main()
     std::vector<std::string> pluginVec = {"x3manager.pln",
         "plsimple.pln", "pltempl.pln"};
 
-    x3plugin::AutoLoadPlugins autoload(pluginVec);
+    x3plugin::AutoLoadPlugins autoload(pluginVec, PLUGINS_PATH);
     test();
 }
