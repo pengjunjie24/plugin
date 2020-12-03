@@ -1,5 +1,7 @@
 
 #include <plsimple/interface/isimple.h>
+#include <plsimple/interface/isimple2.h>
+#include <plsimple/interface/isimple3.h>
 #include <x3framework/Objptr.hpp>
 #include <x3framework/Useplugins.h>
 #include "../x3config.h"
@@ -9,22 +11,34 @@
 
 void test()
 {
-
-    x3plugin::Object<ISimple> plsCls(plsClsidSimple);
-#if 1
-    if (plsCls)
+    x3plugin::Object<ISimple3> plsCls3(plsClsidSimple);
+    if (plsCls3)
     {
         printf("The plugin is loaded (%s in %s).\n",
-            plsCls->getInterfaceName(), plsCls->getClassName());
+            plsCls3->getInterfaceName(), plsCls3->getClassName());
 
-        int sum = plsCls->add(1, 2);
-        printf("plsCls->add(1, 2): %d\n", sum);
+        x3plugin::Object<ISimple> plsCls = plsCls3->createSimple();
+        if (plsCls)
+        {
+            int sum = plsCls->add(1, 2);
+            printf("plsCls->add(1, 2): %d\n", sum);
+            sum = plsCls->add(4, 9);
+            printf("plsCls->add(4, 9): %d\n", sum);
+        }
+
+        x3plugin::Object<ISimple> plsCls1(plsClsidSimple);
+        if (plsCls1)
+        {
+            int sum = plsCls1->add(2, 3);
+            printf("plsCls->add(2, 3): %d\n", sum);
+            sum = plsCls1->add(4, 6);
+            printf("plsCls->add(4, 6): %d\n", sum);
+        }
     }
     else
     {
-        printf("The plugin is not loaded.\n");
+        printf("The x3plugin::Object<ISimple3> plugin is not loaded.\n");
     }
-#endif
 }
 
 int main()

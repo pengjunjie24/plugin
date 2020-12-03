@@ -1,0 +1,9 @@
+1.plugin实现简单的插件模式
+2.util, x3framework, plugins/x3manager为插件模式必要组件。 plugins/plsimple, plugins/pltempl, plugins/consoledemo为示例代码
+3.插件定义一般有两种方式，分别为XDEFINE_CLASSMAP_ENTRY和XDEFINE_CLASSMAP_ENTRY_SINGLETON。
+    使用XDEFINE_CLASSMAP_ENTRY定义plugin时，调用interface时系统可能会生成多个独立的plugin实体
+    使用分别为XDEFINE_CLASSMAP_ENTRY和XDEFINE_CLASSMAP_ENTRY_SINGLETON定义plugin时，调用interface时系统中只会有一个plugin实体(实现不完整，申请全局唯一的plugin不能释放)
+4.编译源代码
+    在根目录下新建build目录
+    执行cmae ..
+    执行make
