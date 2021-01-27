@@ -11,7 +11,7 @@ include_directories(
 #cmake和程序共享变量
 configure_file (
   "x3config.h.in"
-  "x3config.h"
+  "${CMAKE_CURRENT_SOURCE_DIR}/x3config.h"
   @ONLY
 )
 
