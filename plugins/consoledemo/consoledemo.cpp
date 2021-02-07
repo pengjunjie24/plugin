@@ -2,6 +2,7 @@
 #include <plsimple/interface/isimple.h>
 #include <plsimple/interface/isimple2.h>
 #include <plsimple/interface/isimple3.h>
+#include <pltempl/interface/pltisimple.h>
 #include <x3framework/Objptr.hpp>
 #include <x3framework/Useplugins.h>
 #include "../x3config.h"
@@ -38,6 +39,13 @@ void test()
     else
     {
         printf("The x3plugin::Object<ISimple3> plugin is not loaded.\n");
+    }
+
+    x3plugin::Object<ISimple> pltTemp(IsClsidSimple);
+    if (pltTemp)
+    {
+        int sum = pltTemp->add(1, 7);
+        printf("IsClsidSimple pltTemp->add(1, 7): %d\n", sum);
     }
 }
 

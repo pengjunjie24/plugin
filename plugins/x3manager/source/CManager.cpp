@@ -20,46 +20,30 @@ CManager::~CManager()
 //creator:创建插件实例函数
 //hmod:插件操作句柄
 //clsids:插件中实例id
-void CManager::registerPlugin(Creator creator, HMODULE hmod, const char** clsids)
+void CManager::registerPlugin(Creator creator, Destructor destructor, HMODULE hmod, const char* clsid)
 {
     std::lock_guard<std::mutex> locker(_registerMutex);
-    auto iter = std::find(_plugins.begin(), _plugins.end(), Plugin(creator, hmod));
-    if (iter == _plugins.end())
-    {
-        _plugins.push_back(Plugin(creator, hmod));
 
-        for (; *clsids; ++clsids)
-        {
-            _clsmap.insert(CreatorPair(*clsids, creator));
-        }
+    auto iter = _clsPluginmap.find(clsid);
+    if (iter == _clsPluginmap.end())
+    {
+        _clsPluginmap.insert(std::make_pair(clsid, std::make_tuple(creator, destructor, ModuleAction::getModulefilename(hmod))));
     }
 }
 
 //从插件管理器中删除插件
-void CManager::unregisterPlugin(Creator creator)
+void CManager::unregisterPlugin(const char* clsid)
 {
     std::lock_guard<std::mutex> locker(_registerMutex);
-    for (std::vector<Plugin>::iterator it = _plugins.begin();
-        it != _plugins.end(); ++it)
+    const auto& iter = _clsPluginmap.find(clsid);
+    if (iter != _clsPluginmap.end())
     {
-        if (it->first == creator)
+        Destructor destructor = std::get<DESTRUCTOR_FUNC>(iter->second);
+        if (destructor)
         {
-            _plugins.erase(it);
-            break;
+            destructor(iter->first.c_str());
         }
-    }
-
-    auto iter = _clsmap.begin();
-    while (iter != _clsmap.end())
-    {
-        if (iter->second == creator)
-        {
-            _clsmap.erase(iter++);
-        }
-        else
-        {
-            ++iter;
-        }
+        _clsPluginmap.erase(iter);
     }
 }
 
@@ -74,47 +58,43 @@ bool CManager::createFromOthers(const std::string& clsid, int64_t iid, IObject**
     return false;
 }
 
-HMODULE CManager::findModuleByFileName(const std::string& filename)
+bool CManager::findModuleByFileName(const std::string& filename)
 {
     std::lock_guard<std::mutex> locker(_registerMutex);
-    for (auto& plugin : _plugins)
+    for (auto& clsplugin : _clsPluginmap)
     {
-        std::string findfilename = "";
-        ModuleAction::getModulefilename(plugin.second, findfilename);
-
-        if (filename == findfilename)
+        if (filename == std::get<FILE_NAME>(clsplugin.second))
         {
-            return plugin.second;
+            return true;
         }
     }
 
-    return NULL;
+    return false;
 }
 
 int32_t CManager::getPluginCount() const
 {
     std::lock_guard<std::mutex> locker(_registerMutex);
-    return 1 + _plugins.size();
+    return 1 + _clsPluginmap.size();
 }
 
 void CManager::getPluginFiles(std::vector<std::string>& files) const
 {
     files.clear();
-    std::string filename = "";
-    ModuleAction::getModulefilename(getModuleHandle(), filename);
+    std::string filename = ModuleAction::getModulefilename(getModuleHandle());
     files.push_back(filename);
 
     std::lock_guard<std::mutex> locker(_registerMutex);
-    for (auto& plugin : _plugins)
+    for (auto& clsPlugin : _clsPluginmap)
     {
-        ModuleAction::getModulefilename(plugin.second, filename);
-        files.push_back(filename);
+        const auto& plugin = clsPlugin.second;
+        files.push_back(std::get<FILE_NAME>(plugin));
     }
 }
 
 Creator CManager::findPluginByClassID(const std::string& clsid) const
 {
     std::lock_guard<std::mutex> locker(_registerMutex);
-    const auto& findIter = _clsmap.find(clsid);
-    return (findIter != _clsmap.end()) ? findIter->second : NULL;
+    const auto& findIter = _clsPluginmap.find(clsid);
+    return (findIter != _clsPluginmap.end()) ? std::get<CREATOR_FUNC>(findIter->second) : NULL;
 }

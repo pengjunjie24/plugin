@@ -14,46 +14,33 @@ namespace x3plugin
 {
     static HMODULE s_hmod = NULL;//插件操作句柄
     static HMODULE s_hmanager = NULL;//插件管理器
-    static const int32_t s_x3classMaxcount = 64;
     static std::string s_filename = "";//插件所在路径
 
     OUTAPI bool x3InitializePlugin();//模块加载后调用的初始化函数
     OUTAPI void x3UninitializePlugin();//模块卸载后调用的析构函数
 
     //获取当前插件空间中的插件实例id
-    static const char** getClassIds(const char** clsids, int32_t count)
+    static const char* getClassId()
     {
-        int32_t clsidIdx = 0;
-        for (const ClassEntry* cls = ClassEntry::s_classes; cls->_creator; ++cls)
-        {
-            clsids[clsidIdx++] = cls->_clsid.c_str();
-            if (clsidIdx >= count)
-            {
-                break;
-            }
-        }
-
-        clsids[clsidIdx] = NULL;
-
-        return clsids;
+        const ClassEntry cls = ClassEntry::s_classEntry;
+        assert(cls._creator);//插件实体必须初始化
+        return cls._clsid.c_str();
     }
 
     //通过iid获取clsid
     static bool getDefaultClassId(const int64_t& iid, const char*& clsid)
     {
-        for (const ClassEntry* cls = ClassEntry::s_classes; cls->_creator; ++cls)
+        const ClassEntry cls = ClassEntry::s_classEntry;
+        if (cls._hasiid(iid))
         {
-            if (cls->_hasiid(iid))
-            {
-                clsid = cls->_clsid.c_str();
-                return true;
-            }
+            clsid = cls._clsid.c_str();
+            return true;
         }
-
         return false;
     }
 
     //在当前动态库空间内创建对象
+    //在x3manager中调用
     OUTAPI bool x3InternalCreate(const char* clsid, int64_t iid, IObject** p)
     {
         *p = NULL;
@@ -62,16 +49,23 @@ namespace x3plugin
             getDefaultClassId(iid, clsid);
         }
 
-        for (const ClassEntry* cls = ClassEntry::s_classes; cls->_creator; ++cls)
+        const ClassEntry cls = ClassEntry::s_classEntry;
+        if (cls._clsid == clsid)
         {
-            if (cls->_clsid == clsid)
-            {
-                *p = cls->_creator(iid);
-                return *p != NULL;
-            }
+            *p = cls._creator(iid);
+            return *p != NULL;
         }
 
         return false;
+    }
+
+    OUTAPI void x3InternalDestruct(const char* clsid)
+    {
+        const ClassEntry cls = ClassEntry::s_classEntry;
+        if (cls._clsid == clsid && cls._destructor)
+        {
+            cls._destructor();
+        }
     }
 
     OUTAPI bool x3InitPlugin(HMODULE hmod,
@@ -93,14 +87,13 @@ namespace x3plugin
         if (s_hmanager != s_hmod)
         {
             typedef bool (*CreateFunc)(const char*, int64_t, IObject**);//创建插件方法
-            typedef bool (*RegisterFunc)(CreateFunc, HMODULE, const char**);//注册插件方法
+            typedef void (*DestructFunc)(const char*);//删除插件方法
+            typedef bool (*RegisterFunc)(CreateFunc, DestructFunc, HMODULE, const char*);//注册插件方法
 
             RegisterFunc freg = (RegisterFunc)ModuleAction::getProcAddress(
                 s_hmanager, "x3RegisterPlugin");
 
-            const char* clsids[s_x3classMaxcount] = { NULL };
-            needInit = !freg || freg(x3InternalCreate, s_hmod,
-                getClassIds(clsids, s_x3classMaxcount));
+            needInit = !freg || freg(x3InternalCreate, x3InternalDestruct, s_hmod, getClassId());
         }
 
         return !needInit || x3InitializePlugin();
@@ -115,12 +108,11 @@ namespace x3plugin
         {
             assert(s_hmod);
 
-            typedef bool(*CreateFunc)(const char*, long, IObject**);
-            typedef bool(*UnregisterFunc)(CreateFunc);
+            typedef bool(*UnregisterFunc)(const char*);
 
             UnregisterFunc unregisterfunc = (UnregisterFunc)
                 ModuleAction::getProcAddress(s_hmanager, "x3UnregisterPlugin");
-            needFree = !unregisterfunc || unregisterfunc(x3InternalCreate);
+            needFree = !unregisterfunc || unregisterfunc(getClassId());
         }
 
         if(needFree)

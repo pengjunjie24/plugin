@@ -6,9 +6,12 @@
 
 #include <mutex>
 #include <atomic>
+#include <assert.h>
 
 namespace x3plugin
 {
+    static std::mutex s_singleMutex;
+
     //在加载插件时构造的单例对象(全局只能有一个)
     template <class Cls>
     class SingletonObject
@@ -20,8 +23,7 @@ namespace x3plugin
         {
             if (!Instance())
             {
-                static std::mutex s_mutex;
-                std::lock_guard<std::mutex> lock(s_mutex);
+                std::lock_guard<std::mutex> lock(s_singleMutex);
                 if (!Instance())
                 {
                     SingletonObject<Cls>* p = new SingletonObject<Cls>();
@@ -36,6 +38,17 @@ namespace x3plugin
         static bool hasInterface(int64_t iid)
         {
             return Cls::_queryObject(NULL, iid, NULL);
+        }
+
+        static void deleteObject()
+        {
+            std::lock_guard<std::mutex> lock(s_singleMutex);
+            if (Instance())
+            {
+                assert(Instance()->_refcount == 0);
+                delete(Instance());
+                Instance() = NULL;
+            }
         }
 
     protected:
@@ -74,18 +87,12 @@ namespace x3plugin
         }
 
         SingletonObject()
-            : _refcount(1)
+            : _refcount(0)
         {
         }
 
-        ~SingletonObject()
-        {
-            if (Instance())
-            {
-                delete(Instance());
-                Instance() = NULL;
-            }
-        }
+        ~SingletonObject() = default;
+
         mutable std::atomic<int32_t> _refcount;
     };
 }

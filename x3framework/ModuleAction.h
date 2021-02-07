@@ -19,7 +19,6 @@ namespace x3plugin
 
         ModuleAction(const std::string& filename = "")
             : _hmod(NULL)
-            , _loadnew(false)
         {
             if (!filename.empty())
             {
@@ -40,11 +39,9 @@ namespace x3plugin
             //从插件管理器中查找插件
             assert(!_hmod);//调用load时确保插件未加载
             std::string fullfilename = PathOperation::getFullfilename(folder, filename);
-            _hmod = findHandleModule(fullfilename);
-            _loadnew = !_hmod;//若在插件管理器中找到代表插件已经被加载
 
             //当前插件未加载
-            if (!_hmod)
+            if (!pluginLoaded(fullfilename))
             {
                 _hmod = loadLibrary(filename, folder);
             }
@@ -57,11 +54,7 @@ namespace x3plugin
         {
             if (_hmod)
             {
-                //如果插件被加载过，要先卸载
-                if (_loadnew)
-                {
-                    freeLibrary(_hmod);
-                }
+                freeLibrary(_hmod);
                 _hmod = NULL;
             }
         }
@@ -143,12 +136,12 @@ namespace x3plugin
             return sym;
         }
 
-        //通过filename得到handle
-        static HMODULE findHandleModule(const std::string& filename)
+        //判断plugin是否被加载
+        static bool pluginLoaded(const std::string& filename)
         {
             if (filename.empty())
             {
-                return NULL;
+                return false;
             }
 
             if (filename == s_manageName)
@@ -156,16 +149,16 @@ namespace x3plugin
                 return s_manageMod;
             }
 
-            //通过OutputFindModule函数找到module
+            //通过OutputFindModule函数判断plugin是否被加载
             if (s_manageMod)
             {
-                typedef HMODULE(*FindModule)(const char*);
+                typedef bool(*FindModule)(const char*);
                 FindModule findModule = (FindModule)getProcAddress(s_manageMod, "x3FindModule");
 
-                return findModule ? findModule(filename.c_str()) : NULL;
+                return findModule ? findModule(filename.c_str()) : false;
             }
 
-            return NULL;
+            return false;
         }
 
         //插件加载成功后需调用的初始化函数
@@ -177,16 +170,17 @@ namespace x3plugin
             return !initfunc || initfunc(hmod, s_manageMod, fullfilename);
         }
 
-        static void getModulefilename(HMODULE hmod, std::string& fullfilename)
+        static std::string getModulefilename(HMODULE hmod)
         {
             char filename[s_filenameSize] = { 0 };
             typedef bool(*FindFilenameFunc)(char*, int16_t);
             FindFilenameFunc filenameFunc = (FindFilenameFunc)getProcAddress(hmod, "getdlname");
             if (filenameFunc)
             {
-                filenameFunc(filename, s_filenameSize);
-                fullfilename = filename;
+                filenameFunc(filename, sizeof(filename));
             }
+
+            return filename;
         }
 
         //加载插件管理器
@@ -209,7 +203,6 @@ namespace x3plugin
 
     private:
         HMODULE _hmod;//插件操作句柄
-        bool _loadnew;
 
         static HMODULE s_manageMod;//插件管理器
         static const std::string s_manageName;

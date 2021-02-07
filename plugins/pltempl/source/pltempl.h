@@ -1,12 +1,12 @@
 #pragma once
 
 #include <x3framework/ClassMacro.h>
-#include <pltempl/interface/isimple.h>
+#include <pltempl/interface/pltisimple.h>
 
-class CSimple : public ISimple
+class CSimple : public PltISimple
 {
     X3BEGIN_CLASS_DECLARE(CSimple, IsClsidSimple)
-        X3DEFINE_INTERFACE_ENTRY(ISimple)
+        X3DEFINE_INTERFACE_ENTRY(PltISimple)
     X3END_CLASS_DECLARE()
 protected:
     CSimple();

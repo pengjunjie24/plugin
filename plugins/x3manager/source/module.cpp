@@ -23,31 +23,31 @@ namespace x3plugin
     {
     }
 
-    OUTAPI bool x3RegisterPlugin(Creator creator,
-        HMODULE hmod, const char** clsids)
+    OUTAPI bool x3RegisterPlugin(Creator creator, Destructor destructor,
+        HMODULE hmod, const char* clsid)
     {
         Object<IRegister> reg(clsidX3manager);
 
         if (reg)
         {
-            reg->registerPlugin(creator, hmod, clsids);
+            reg->registerPlugin(creator, destructor, hmod, clsid);
         }
 
         return true;
     }
 
-    OUTAPI bool x3UnregisterPlugin(Creator creator)
+    OUTAPI bool x3UnregisterPlugin(const char* clsid)
     {
         Object<IRegister> reg(clsidX3manager);
-        if (reg && creator)
+        if (reg && (*clsid != 0))
         {
-            reg->unregisterPlugin(creator);
+            reg->unregisterPlugin(clsid);
         }
 
         return true;
     }
 
-    OUTAPI HMODULE x3FindModule(const char* filename)
+    OUTAPI bool x3FindModule(const char* filename)
     {
         Object<IRegister> reg(clsidX3manager);
         if (reg)
@@ -58,7 +58,7 @@ namespace x3plugin
         return NULL;
     }
 
-    OUTAPI bool x3CreateObject(const char* clsid, long iid, IObject** p)
+    OUTAPI bool x3CreateObject(const char* clsid, int64_t iid, IObject** p)
     {
         if (x3InternalCreate(clsid, iid, p))
         {

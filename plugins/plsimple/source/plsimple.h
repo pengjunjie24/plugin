@@ -29,4 +29,7 @@ private:
     virtual int add(const std::vector<int>& nums) const;
 
     virtual x3plugin::AnyObject createSimple();
+
+public:
+    mutable int _sum = 0;
 };
