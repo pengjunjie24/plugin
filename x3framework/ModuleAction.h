@@ -17,13 +17,12 @@ namespace x3plugin
     public:
         typedef std::unique_ptr<ModuleAction> uptr;
 
-        ModuleAction(const std::string& filename = "")
+        ModuleAction()
             : _hmod(NULL)
+            , _plugname("")
+            , _plugfolder("")
+            , _plugclsid("")
         {
-            if (!filename.empty())
-            {
-                load(filename);
-            }
         }
 
         ~ModuleAction()
@@ -37,15 +36,10 @@ namespace x3plugin
         bool load(const std::string& filename, const std::string& folder = "")
         {
             //从插件管理器中查找插件
-            assert(!_hmod);//调用load时确保插件未加载
-            std::string fullfilename = PathOperation::getFullfilename(folder, filename);
-
-            //当前插件未加载
-            if (!pluginLoaded(fullfilename))
-            {
-                _hmod = loadLibrary(filename, folder);
-            }
-
+            assert(!_hmod);//确保该模块未加载
+            _plugname = filename;
+            _plugfolder = folder;
+           _hmod = loadLibrary(_plugfolder, _plugname, _plugclsid);
             return _hmod != NULL;
         }
 
@@ -59,15 +53,13 @@ namespace x3plugin
             }
         }
 
-        HMODULE getModule() const { return _hmod; }
-
+        const std::string& getPlugname() { return _plugname; }
+        const std::string& getClsid() { return _plugclsid; }
         //通过函数名得到函数得到函数指针
         PROC getFunc(const std::string& funcName) const { return _hmod ? getProcAddress(_hmod, funcName) : NULL; }
-        static PROC getManageFunc(const std::string& funcName) { return s_manageMod ? getProcAddress(s_manageMod, funcName) : NULL; }
 
-        static HMODULE getManageMod() { return s_manageMod; }
-
-        static HMODULE loadLibrary(const std::string& filename, const std::string& folder)
+    private:
+        static HMODULE loadLibrary(const std::string&folder, const std::string& filename, std::string& clsidStr)
         {
             if (filename.empty())
             {
@@ -75,25 +67,11 @@ namespace x3plugin
                 return NULL;
             }
 
-            //s_manageMod插件加载后才能加载其他插件
-            if (!s_manageMod)
-            {
-                if (!loadManageMod(folder))
-                {
-                    return NULL;
-                }
-            }
-
-            if (filename == s_manageName)
-            {
-                return NULL;
-            }
-
-            std::string fullfilename = PathOperation::getFullfilename(folder, filename);
-            HMODULE hmod = dlopen(fullfilename.c_str(), RTLD_LAZY);
+            std::string fullname = PathOperation::getFullfilename(folder, filename);
+            HMODULE hmod = dlopen(fullname.c_str(), RTLD_LAZY);
             if (hmod)
             {
-                if (!ondlopen(hmod, fullfilename.c_str()))
+                if (!ondlopen(hmod, clsidStr))
                 {
                     fprintf(stderr, "%s ondlopen failed\n", filename.c_str());
                     freeLibrary(hmod);
@@ -122,7 +100,6 @@ namespace x3plugin
             return (ret == 0);
         }
 
-
         static PROC getProcAddress(HMODULE hmod, const std::string& name)
         {
             void* sym = NULL;
@@ -136,77 +113,28 @@ namespace x3plugin
             return sym;
         }
 
-        //判断plugin是否被加载
-        static bool pluginLoaded(const std::string& filename)
+        //插件加载成功后需调用的初始化函数
+        static bool ondlopen(HMODULE hmod, std::string& plugclsid)
         {
-            if (filename.empty())
-            {
-                return false;
-            }
+            const char* clsidtmp = NULL;
+            typedef bool(*InitFunc)(HMODULE, const char*&);
+            InitFunc initfunc = (InitFunc)getProcAddress(hmod, "x3InitPlugin");
 
-            if (filename == s_manageName)
+            if (initfunc)
             {
-                return s_manageMod;
-            }
-
-            //通过OutputFindModule函数判断plugin是否被加载
-            if (s_manageMod)
-            {
-                typedef bool(*FindModule)(const char*);
-                FindModule findModule = (FindModule)getProcAddress(s_manageMod, "x3FindModule");
-
-                return findModule ? findModule(filename.c_str()) : false;
+                initfunc(hmod, clsidtmp);
+                plugclsid = clsidtmp;
+                return true;
             }
 
             return false;
         }
 
-        //插件加载成功后需调用的初始化函数
-        static bool ondlopen(HMODULE hmod, const char* fullfilename)
-        {
-            typedef bool(*InitFunc)(HMODULE, HMODULE, const char*);
-            InitFunc initfunc = (InitFunc)getProcAddress(hmod, "x3InitPlugin");
-
-            return !initfunc || initfunc(hmod, s_manageMod, fullfilename);
-        }
-
-        static std::string getModulefilename(HMODULE hmod)
-        {
-            char filename[s_filenameSize] = { 0 };
-            typedef bool(*FindFilenameFunc)(char*, int16_t);
-            FindFilenameFunc filenameFunc = (FindFilenameFunc)getProcAddress(hmod, "getdlname");
-            if (filenameFunc)
-            {
-                filenameFunc(filename, sizeof(filename));
-            }
-
-            return filename;
-        }
-
-        //加载插件管理器
-        static bool loadManageMod(const std::string& folder)
-        {
-            assert(!s_manageMod);//开始没有加载s_manageMod
-
-            std::string fullmanageflie =
-                PathOperation::getFullfilename(folder, s_manageName);
-            s_manageMod = dlopen(fullmanageflie.c_str(), RTLD_LAZY);
-
-            assert(s_manageMod);
-            if (!s_manageMod)
-            {
-                fprintf(stderr, "s_manageMod %s load failed\n", fullmanageflie.c_str());
-            }
-
-            return s_manageMod ? true : false;
-        }
-
     private:
         HMODULE _hmod;//插件操作句柄
-
-        static HMODULE s_manageMod;//插件管理器
-        static const std::string s_manageName;
-        static const int16_t s_filenameSize = 256;
+        std::string _plugname;//插件名称
+        std::string _plugfolder;//插件路徑
+        std::string _plugclsid;//插件的guid
     };
 
 

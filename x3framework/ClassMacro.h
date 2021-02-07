@@ -1,44 +1,23 @@
 
 #pragma once
 
-#include <x3framework/PluginDef.h>
+#include <x3framework/ClassEntry.h>
+#include <x3framework/SingletonObject.hpp>
+#include <x3framework/NormalObject.hpp>
 
-namespace x3plugin
-{
-    LOCALAPI HMODULE getModuleHandle();
-    LOCALAPI HMODULE getManagerModule();
-}
+//插件实体注册定义
+#define XBEGIN_DEFINE_MODULE()  \
+    const x3plugin::ClassEntry x3plugin::ClassEntry::s_classEntry =
 
-//接口注册定义
-#define X3BEGIN_CLASS_DECLARE0(Cls) \
-public: \
-    static bool _queryObject(const Cls* self, long iid, x3plugin::IObject** p)  \
-    {
+#define XDEFINE_CLASSMAP_ENTRY(cls) \
+    x3plugin::ClassEntry("NormalObject<"#cls">", cls::_getClassId(),  \
+        (x3plugin::ObjectCreator)(&x3plugin::NormalObject<cls>::create), NULL, \
+        (x3plugin::HASIID)(&x3plugin::NormalObject<cls>::hasInterface));
 
-#define X3BEGIN_CLASS_DECLARE(Cls, clsid)  \
-public: \
-    static const char* _getClassId() { return clsid; }   \
-    static const char* _getClassName() { return #Cls; }   \
-    static bool _queryObject(const Cls* self, int64_t iid, x3plugin::IObject** p) \
-    {
+#define XDEFINE_CLASSMAP_ENTRY_SINGLETON(cls)    \
+    x3plugin::ClassEntry("SingletonObject<"#cls">", cls::_getClassId(),  \
+        (x3plugin::ObjectCreator)(&x3plugin::SingletonObject<cls>::create), \
+        (x3plugin::ObjectDestructor)(&x3plugin::SingletonObject<cls>::deleteObject), \
+        (x3plugin::HASIID)(&x3plugin::SingletonObject<cls>::hasInterface));
 
-#define X3DEFINE_INTERFACE_ENTRY(_Interface)    \
-        if (iid == _Interface::getIID())        \
-        {   \
-            if (self) {     \
-                *p = (x3plugin::IObject*)(_Interface*)(self); \
-                (*p)->retainObject(); \
-            }   \
-            return true;    \
-        }
-
-#define X3USE_INTERFACE_ENTRY(_BaseClass)   \
-        if (_BaseClass::_queryObject(self, iid, p))   \
-        {   \
-            return true;    \
-        }
-
-#define X3END_CLASS_DECLARE() \
-        return false; \
-    }   \
-protected:  // Ensure the following constructor is protected.
+#define XEND_DEFINE_MODULE()

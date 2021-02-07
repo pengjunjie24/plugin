@@ -3,8 +3,8 @@
 #include <x3framework/Objptr.hpp>
 #include <vector>
 
-class ISimple2 : public x3plugin::IObject
+class Calculate2 : public x3plugin::IObject
 {
-    X3DEFINE_IID(ISimple2);
+    X3DEFINE_IID(Calculate2);
     virtual int add(const std::vector<int>& nums) const = 0;
 };

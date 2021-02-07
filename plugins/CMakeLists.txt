@@ -16,6 +16,5 @@ configure_file (
 )
 
 add_subdirectory(consoledemo)
-add_subdirectory(x3manager)
-add_subdirectory(plsimple)
-add_subdirectory(pltempl)
+add_subdirectory(calculation)
+add_subdirectory(printer)

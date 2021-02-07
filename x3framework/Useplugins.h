@@ -7,15 +7,29 @@
 
 namespace x3plugin
 {
-    HMODULE ModuleAction::s_manageMod = NULL;
-    const std::string ModuleAction::s_manageName = "x3manager.pln";
+    static std::vector<ModuleAction::uptr> s_plugins;
+    static void getPluginsName(std::vector<std::string>& pluginsName)
+    {
+        for (const auto& plugin : s_plugins)
+        {
+            pluginsName.emplace_back(plugin->getPlugname());
+        }
+    }
 
     class IObject;
     bool createObject(const char* clsid, int64_t iid, IObject** p)
     {
         typedef bool(*createFunc)(const char*, int64_t, IObject**);
-        createFunc func = (createFunc)ModuleAction::getManageFunc("x3CreateObject");
-        return func && func(clsid, iid, p);
+
+        for (const auto& plugin : s_plugins)
+        {
+            if (clsid == plugin->getClsid())
+            {
+               createFunc func = (createFunc)plugin->getFunc("x3InternalCreate");
+               return func && func(clsid, iid, p);
+            }
+        }
+        return false;
     }
 
     //插件加载和卸载(用户调用)
@@ -35,6 +49,7 @@ namespace x3plugin
             unloadPlugins();
         }
 
+    private:
         //加载插件
         static int16_t loadPlugins(const std::vector<std::string>& pluginsName,
             const std::string& folder = "")
@@ -54,13 +69,11 @@ namespace x3plugin
         //卸载插件
         static void unloadPlugins()
         {
-            s_plugins.clear();
+            while (!s_plugins.empty())
+            {
+                //类似栈上操作，后加载的先释放
+                s_plugins.pop_back();
+            }
         }
-
-        static std::vector<ModuleAction::uptr> s_plugins;
     };
-
-    std::vector<ModuleAction::uptr> AutoLoadPlugins::s_plugins;
-
-
 }

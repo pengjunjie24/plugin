@@ -34,7 +34,6 @@ namespace x3plugin
         ObjectDestructor _destructor;
         HASIID _hasiid;
 
-        //static const ClassEntry s_classes[];
         static const ClassEntry s_classEntry;
     };
 }

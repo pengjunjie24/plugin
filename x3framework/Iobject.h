@@ -21,8 +21,7 @@ public: \
     virtual ~_Interface() {}   \
     static const char* getInterfaceName() { return #_Interface; }   \
     static int64_t getIID() { static int64_t iid = x3plugin::hashkey(#_Interface);    \
-        return iid; }   \
-    typedef void dummy
+        return iid; }
 
     //所有插件的基类
     class IObject
