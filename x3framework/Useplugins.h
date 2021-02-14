@@ -8,13 +8,6 @@
 namespace x3plugin
 {
     static std::vector<ModuleAction::uptr> s_plugins;
-    static void getPluginsName(std::vector<std::string>& pluginsName)
-    {
-        for (const auto& plugin : s_plugins)
-        {
-            pluginsName.emplace_back(plugin->getPlugname());
-        }
-    }
 
     class IObject;
     bool createObject(const char* clsid, int64_t iid, IObject** p)
@@ -47,6 +40,16 @@ namespace x3plugin
         ~AutoLoadPlugins()
         {
             unloadPlugins();
+        }
+
+        static int16_t getPluginsName(std::vector<std::string>& pluginsName)
+        {
+            for (const auto& plugin : s_plugins)
+            {
+                pluginsName.emplace_back(plugin->getPlugname());
+            }
+
+            return static_cast<int16_t>(pluginsName.size());
         }
 
     private:

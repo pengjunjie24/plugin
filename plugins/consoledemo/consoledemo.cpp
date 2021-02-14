@@ -16,6 +16,16 @@
 
 void test()
 {
+    std::vector<std::string> pluginsName;
+    x3plugin::AutoLoadPlugins::getPluginsName(pluginsName);
+    printf("---------------------plugin number: %d--------------------\n", (int32_t)pluginsName.size());
+    for (const auto& plugin : pluginsName)
+    {
+        printf("%s\n", plugin.c_str());
+    }
+
+    printf("----------------------------------------------------------\n");
+
     x3plugin::Object<Creation> plsCls3(c_calculationClsid);
     if (plsCls3)
     {
@@ -42,18 +52,18 @@ void test()
     }
     else
     {
-        printf("The x3plugin::Object<ISimple3> plugin is not loaded.\n");
+        printf("The x3plugin::Object<Calculate1> plugin is not loaded.\n");
     }
 
     x3plugin::Object<PrintInterface> pltTemp(c_printClsid);
     if (pltTemp)
     {
         int sum = pltTemp->add(1, 7);
-        printf("IsClsidSimple pltTemp->add(1, 7): %d\n", sum);
+        printf("PrintInterface pltTemp->add(1, 7): %d\n", sum);
     }
     else
     {
-        printf("x3plugin::Object<Calculate1> pltTemp load failed\n");
+        printf("x3plugin::Object<PrintInterface> pltTemp load failed\n");
     }
 }
 
@@ -62,7 +72,7 @@ int main()
 {
     printf("PLUGINS_PATH: %s\n", PLUGINS_PATH);
 
-    std::vector<std::string> pluginVec = {"calcution.pln", "printer.pln"};
+    std::vector<std::string> pluginVec = {"calculation.pln", "printer.pln"};
 
      x3plugin::AutoLoadPlugins autoload(pluginVec, PLUGINS_PATH);
     test();
