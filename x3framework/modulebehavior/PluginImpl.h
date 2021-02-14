@@ -1,9 +1,9 @@
 
 #pragma once
 
-#include <x3framework/ClassMacro.h>
-#include <x3framework/PluginDef.h>
-#include <x3framework/Iobject.h>
+#include <x3framework/moduleclass/ClassMacro.h>
+#include <x3framework/moduleclass/PluginDef.h>
+#include <x3framework/moduleclass/Iobject.h>
 
 #include <assert.h>
 #include <string.h>

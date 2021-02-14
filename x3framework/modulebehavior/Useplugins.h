@@ -1,7 +1,7 @@
 
 #pragma once
 
-#include <x3framework/ModuleAction.h>
+#include <x3framework/modulebehavior/ModuleAction.h>
 
 #include <vector>
 

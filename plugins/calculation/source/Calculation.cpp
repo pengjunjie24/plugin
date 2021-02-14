@@ -1,5 +1,5 @@
 #include <calculation/source/Calculation.h>
-#include <x3framework/PluginImpl.h>
+#include <x3framework/modulebehavior/PluginImpl.h>
 
 Calculation::Calculation()
 {

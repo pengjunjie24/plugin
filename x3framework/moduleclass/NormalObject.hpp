@@ -1,7 +1,7 @@
 
 #pragma once
 
-#include <x3framework/Iobject.h>
+#include <x3framework/moduleclass/Iobject.h>
 
 namespace x3plugin
 {

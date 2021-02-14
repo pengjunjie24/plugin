@@ -1,9 +1,9 @@
 
 #pragma once
 
-#include <x3framework/ClassEntry.h>
-#include <x3framework/SingletonObject.hpp>
-#include <x3framework/NormalObject.hpp>
+#include <x3framework/moduleclass/ClassEntry.h>
+#include <x3framework/moduleclass/SingletonObject.hpp>
+#include <x3framework/moduleclass/NormalObject.hpp>
 
 //插件实体注册定义
 #define XBEGIN_DEFINE_MODULE()  \

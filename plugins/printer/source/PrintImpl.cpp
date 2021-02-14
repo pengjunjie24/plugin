@@ -1,6 +1,6 @@
 
 #include <printer/source/PrintImpl.h>
-#include <x3framework/PluginImpl.h>
+#include <x3framework/modulebehavior/PluginImpl.h>
 
 PrintImpl::PrintImpl()
 {

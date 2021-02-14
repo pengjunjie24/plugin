@@ -1,7 +1,7 @@
 
 #pragma once
 
-#include <x3framework/PluginDef.h>
+#include <x3framework/moduleclass/PluginDef.h>
 
 //接口注册定义
 #define X3BEGIN_CLASS_DECLARE(Cls, clsid)  \

@@ -1,4 +1,4 @@
-#include <x3framework/ClassMacro.h>
+#include <x3framework/moduleclass/ClassMacro.h>
 #include <printer/source/PrintImpl.h>
 
 XBEGIN_DEFINE_MODULE()

@@ -1,6 +1,6 @@
 #pragma once
 
-#include <x3framework/Objptr.hpp>
+#include <x3framework/moduleclass/Objptr.hpp>
 
 const char* const clsidSimple3 = "94071767-ba6b-4769-9eb4-2ebf469218f3";
 

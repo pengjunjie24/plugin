@@ -5,8 +5,8 @@
 #include <calculation/interface/Creator.h>
 #include <printer/interface/PrintInterface.h>
 
-#include <x3framework/Objptr.hpp>
-#include <x3framework/Useplugins.h>
+#include <x3framework/moduleclass/Objptr.hpp>
+#include <x3framework/modulebehavior/Useplugins.h>
 
 #include "../x3config.h"
 

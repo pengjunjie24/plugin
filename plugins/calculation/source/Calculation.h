@@ -1,6 +1,6 @@
 #pragma once
 
-#include <x3framework/InterfaceMacro.h>
+#include <x3framework/moduleclass/InterfaceMacro.h>
 #include <calculation/interface/Calculate1.h>
 #include <calculation/interface/Calculate2.h>
 #include <calculation/interface/Creator.h>

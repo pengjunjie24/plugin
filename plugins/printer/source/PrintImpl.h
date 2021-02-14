@@ -1,6 +1,6 @@
 #pragma once
 
-#include <x3framework/InterfaceMacro.h>
+#include <x3framework/moduleclass/InterfaceMacro.h>
 #include <printer/interface/PrintInterface.h>
 
 class PrintImpl : public PrintInterface

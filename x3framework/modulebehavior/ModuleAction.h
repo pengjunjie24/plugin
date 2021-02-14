@@ -1,7 +1,7 @@
 
 #pragma once
 
-#include <x3framework/PluginDef.h>
+#include <x3framework/moduleclass/PluginDef.h>
 #include <util/Noncopyable.h>
 #include <util/PathOperation.h>
 

@@ -1,4 +1,4 @@
-#include <x3framework/ClassMacro.h>
+#include <x3framework/moduleclass/ClassMacro.h>
 
 #include <calculation/source/Calculation.h>
 

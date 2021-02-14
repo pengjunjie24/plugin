@@ -1,6 +1,6 @@
 #pragma once
 
-#include <x3framework/Objptr.hpp>
+#include <x3framework/moduleclass/Objptr.hpp>
 #include <vector>
 
 class Calculate2 : public x3plugin::IObject

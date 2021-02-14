@@ -1,8 +1,8 @@
 
 #pragma once
 
-#include <x3framework/Iobject.h>
-#include <x3framework/PluginDef.h>
+#include <x3framework/moduleclass/Iobject.h>
+#include <x3framework/moduleclass/PluginDef.h>
 
 #include <stdlib.h>
 
