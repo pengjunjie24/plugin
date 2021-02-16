@@ -1,2 +1,0 @@
-
-#cmakedefine PLUGINS_PATH "@PLUGINS_PATH@"

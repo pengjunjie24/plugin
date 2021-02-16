@@ -1,0 +1,8 @@
+{
+    "name": "plugin8",
+    "description": "the test plugin one",
+    "dependencies": [
+        "plugin3",
+        "plugin7"
+    ]
+}

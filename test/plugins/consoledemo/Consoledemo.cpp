@@ -8,6 +8,8 @@
 #include <x3framework/moduleclass/Objptr.hpp>
 #include <x3framework/modulebehavior/Useplugins.h>
 
+#include <x3framework/moduleconfig/pluginsparse.h>
+
 #include "../x3config.h"
 
 #include <string>
@@ -71,8 +73,10 @@ void test()
 int main()
 {
     printf("PLUGINS_PATH: %s\n", PLUGINS_PATH);
+    printf("CMAKE_CURRENT_SOURCE_DIR: %s\n", CMAKE_CURRENT_SOURCE_DIR);
 
-    std::vector<std::string> pluginVec = {"calculation.pln", "printer.pln"};
+    PluginsParse pluginsparseDemo(CMAKE_CURRENT_SOURCE_DIR);
+    std::vector<std::string> pluginVec = pluginsparseDemo.getReadyPluginVec();
 
      x3plugin::AutoLoadPlugins autoload(pluginVec, PLUGINS_PATH);
     test();
