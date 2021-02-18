@@ -120,9 +120,8 @@ namespace x3plugin
             typedef bool(*InitFunc)(HMODULE, const char*&);
             InitFunc initfunc = (InitFunc)getProcAddress(hmod, "x3InitPlugin");
 
-            if (initfunc)
+            if (initfunc && initfunc(hmod, clsidtmp))
             {
-                initfunc(hmod, clsidtmp);
                 plugclsid = clsidtmp;
                 return true;
             }
