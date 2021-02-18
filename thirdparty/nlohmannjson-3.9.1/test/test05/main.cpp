@@ -1,7 +1,7 @@
 
 #include "JsonStruct.h"
 
-#include "../config.h"
+#include "../json_config.h"
 #include <fstream>
 #include <iostream>
 

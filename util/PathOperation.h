@@ -4,6 +4,7 @@
 #include <vector>
 #include <string.h>
 #include <dirent.h>
+#include <sys/stat.h>
 
 class PathOperation
 {
@@ -71,15 +72,16 @@ public:
 
     enum FILE_TYPE
     {
-        BLOCK_FILE = DT_BLK,        //块设备
-        CHAR_FILE = DT_CHR,         //字符设备
-        DIR_FILE = DT_DIR,          //目录
-        LINK_FILE = DT_LNK,         //软连接
-        FIFO_FILE = DT_FIFO,        //管道
-        REGULAR_FILE = DT_REG,      //普通文件
-        SOCKET_FILE = DT_SOCK,      //套接字文件
-        UNKOWN_FILE = DT_UNKNOWN,   //未知
+        UNKOWN_FILE = 0,    //未知
+        REGULAR_FILE,       //普通文件
+        DIR_FILE,           //目录
+        CHAR_FILE,          //字符设备
+        BLOCK_FILE,         //块设备
+        LINK_FILE,          //软连接
+        SOCKET_FILE,        //套接字文件
+        FIFO_FILE,          //管道
     };
+
     //获取当前路径下文件
     static bool getFileOnCurPath(const std::string& curPath, const FILE_TYPE& filetype, std::vector<std::string>& files)
     {
@@ -90,14 +92,29 @@ public:
             return false;
         }
 
+        std::string fullname = "";
         struct dirent* pdirent = NULL;
+        struct stat filebuf;
         while ((pdirent = readdir(pCurPath)) != NULL)
         {
             if ((strcmp(".", pdirent->d_name) == 0 || strcmp("..", pdirent->d_name) == 0))
             {
                 continue;
             }
-            if (pdirent->d_type == filetype)
+
+            fullname = getFullfilename(curPath, pdirent->d_name);
+            if (stat(fullname.c_str(), &filebuf) != 0)
+            {
+                fprintf(stderr, "%s get file info failed, errno %d\n", fullname.c_str(), errno);
+                return false;
+            }
+            if ((S_ISREG(filebuf.st_mode) && filetype == REGULAR_FILE) ||
+                (S_ISDIR(filebuf.st_mode) && filetype == DIR_FILE) ||
+                (S_ISCHR(filebuf.st_mode) && filetype == CHAR_FILE) ||
+                (S_ISBLK(filebuf.st_mode) && filetype == BLOCK_FILE) ||
+                (S_ISFIFO(filebuf.st_mode) && filetype == FIFO_FILE) ||
+                (S_ISLNK(filebuf.st_mode) && filetype == LINK_FILE) ||
+                (S_ISSOCK(filebuf.st_mode) && filetype == SOCKET_FILE))
             {
                 files.push_back(pdirent->d_name);
             }

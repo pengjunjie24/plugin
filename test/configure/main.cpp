@@ -8,12 +8,12 @@ int main()
     PluginsParse pluginsparseDemo(CMAKE_CURRENT_SOURCE_DIR);
     std::vector<std::string> pluginVec = pluginsparseDemo.getReadyPluginVec();
 
+    printf("------------plugin loading sequence------------\n");
     for (const auto& plugin : pluginVec)
     {
-        printf("------------plugin loading sequence------------\n");
         printf("%s\n", plugin.c_str());
-        printf("-----------------------------------------------\n");
     }
+    printf("-----------------------------------------------\n");
 
     return 0;
 }
