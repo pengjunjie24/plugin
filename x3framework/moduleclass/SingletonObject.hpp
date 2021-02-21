@@ -21,6 +21,12 @@ namespace x3plugin
     public:
         static IObject* create(int64_t iid)
         {
+            //FIXME: 双检查锁，但由于内存读写reorder不安全
+            //reoeder:
+            //逻辑顺序:
+            //    分配内存——构造函数——赋值运算(传递地址)
+            //实际CPU乱序执行:
+            //    分配内存——赋值运算(传递地址)——构造函数
             if (!Instance())
             {
                 std::lock_guard<std::mutex> lock(s_singleMutex);

@@ -6,6 +6,8 @@
 int main()
 {
     PluginsParse pluginsparseDemo(CMAKE_CURRENT_SOURCE_DIR);
+    pluginsparseDemo.setExcludePlugins({ "plugin3" });
+    pluginsparseDemo.parsePluginConf();
     std::vector<std::string> pluginVec = pluginsparseDemo.getReadyPluginVec();
 
     printf("------------plugin loading sequence------------\n");

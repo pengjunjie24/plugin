@@ -76,6 +76,7 @@ int main()
     printf("CMAKE_CURRENT_SOURCE_DIR: %s\n", CMAKE_CURRENT_SOURCE_DIR);
 
     PluginsParse pluginsparseDemo(CMAKE_CURRENT_SOURCE_DIR);
+    pluginsparseDemo.parsePluginConf();
     std::vector<std::string> pluginVec = pluginsparseDemo.getReadyPluginVec();
 
      x3plugin::AutoLoadPlugins autoload(pluginVec, PLUGINS_PATH);
