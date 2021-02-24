@@ -8,8 +8,8 @@
 
 namespace x3plugin
 {
-    //用户调用
-    //整合了用户配置管理及插件实际加载
+    //鐢ㄦ埛璋冪敤
+    //鏁村悎浜嗙敤鎴烽厤缃鐞嗗強鎻掍欢瀹為檯鍔犺浇
     class ModuleManager: public Singleton<ModuleManager>
     {
     public:
@@ -24,7 +24,7 @@ namespace x3plugin
             if (_pluginParse.parsePluginConf(configFolder))
             {
                 const auto& parsePlugins = _pluginParse.getReadyPluginVec();
-                loadPlugins(parsePlugins, pluginFolder);//加载插件
+                loadPlugins(parsePlugins, pluginFolder);//鍔犺浇鎻掍欢
                 std::vector<std::string> realityPlugins;
                 getPluginsName(realityPlugins);
                 if (realityPlugins.size() != parsePlugins.size())
@@ -47,11 +47,11 @@ namespace x3plugin
         PluginsParse _pluginParse;
     };
 
-    //获取插件接口
+    //鑾峰彇鎻掍欢鎺ュ彛
     template<typename T>
     static void getPlugins(const std::string& clsid, AnyObject& dstObj)
     {
-        //通过clsid获取plugin名称的仿函数
+        //閫氳繃clsid鑾峰彇plugin鍚嶇О鐨勪豢鍑芥暟
         auto getPluginNameByClsid = [](const std::string& clsid)->std::string {
             std::string targetPluginName = "";
             for (const auto& plugin : s_plugins)
