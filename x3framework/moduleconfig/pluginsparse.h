@@ -12,9 +12,8 @@ class PluginsParse
 {
 public:
     //pluginfolder: 插件配置文件所在目录
-    PluginsParse(const std::string& pluginfolder)
+    PluginsParse()
         : _parse(false)
-        , _pluginFolder(pluginfolder)
     {
     }
 
@@ -28,25 +27,21 @@ public:
     }
 
     //解析插件配置文件，按初始化顺序放入就绪队列，只能调用一次
-    bool parsePluginConf()
+    bool parsePluginConf(const std::string& pluginfolder)
     {
         if (!_parse)
         {
             _parse = true;
             std::vector<std::string> dirs;
-            PathOperation::getFileOnCurPath(_pluginFolder, PathOperation::DIR_FILE, dirs);
+            PathOperation::getFileOnCurPath(pluginfolder, PathOperation::DIR_FILE, dirs);
 
-            std::vector<ModuleConifgure> configVec;
-            getModuleConfigVec(_pluginFolder, dirs, configVec);
-            parseExcludePlugins(configVec);
-            return getReadyPlugins(configVec);
+            getModuleConfigVec(pluginfolder, dirs);
+            parseExcludePlugins();
+            return getReadyPlugins();
         }
         fprintf(stderr, "parsePluginConf has been called\n");
         return false;
     }
-
-    const std::vector<std::string>& getReadyPluginVec() { return _plugins; }
-    const std::vector<std::string>& getNotLoadPluginVec() { return _excludePlugins; }
 
     //获取插件加载信息
     std::string getPluginConfigInfo()
@@ -73,12 +68,15 @@ public:
         return "not call parsePluginConf function, don't get detail information\n";
     }
 
+    const std::vector<std::string>& getReadyPluginVec() { return _plugins; }
+    const std::vector<std::string>& getNotLoadPluginVec() { return _excludePlugins; }
+    const std::vector<ModuleConifgure>& getConfigureVec() { return _pluginconfigVec; }
+
 private:
     //获取所有插件的配置文件
     //pluginfolder: 所有插件的配置文件目录
     //plugindirVec: 每个插件配置文件的目录
-    //configVec: 获取每个插件的配置
-    static void getModuleConfigVec(const std::string pluginfolder, const std::vector<std::string>& plugindirVec, std::vector<ModuleConifgure>& configVec)
+    void getModuleConfigVec(const std::string pluginfolder, const std::vector<std::string>& plugindirVec)
     {
         std::string fullfilename = "";
         for (const auto& dir : plugindirVec)
@@ -94,13 +92,13 @@ private:
                 }
                 nlohmann::json pluginconfigjson;
                 jsonfile >> pluginconfigjson;
-                configVec.emplace_back(std::move(pluginconfigjson));
+                _pluginconfigVec.emplace_back(std::move(pluginconfigjson));
             }
         }
     }
 
     //解析被排除的插件
-    void parseExcludePlugins(const std::vector<ModuleConifgure>& configVec)
+    void parseExcludePlugins()
     {
         if (_excludePlugins.empty())
         {
@@ -110,7 +108,7 @@ private:
         size_t excludePluginSize = _excludePlugins.size();
         do {
             excludePluginSize = _excludePlugins.size();
-            for (const ModuleConifgure& configure : configVec)
+            for (const ModuleConifgure& configure : _pluginconfigVec)
             {
                 for (const std::string& dependencyPluginName : configure.dependenciesPluginsName)
                 {
@@ -129,10 +127,10 @@ private:
     }
 
     //按照配置文件，解析插件加载顺序
-    bool getReadyPlugins(const std::vector<ModuleConifgure>& configVec)
+    bool getReadyPlugins()
     {
         std::list<ModuleConifgure> configList;//使用list容器，便于删除
-        std::copy(configVec.begin(), configVec.end(),
+        std::copy(_pluginconfigVec.begin(), _pluginconfigVec.end(),
             std::back_inserter(configList));
 
         //将不需要加载的插件排除
@@ -209,7 +207,7 @@ private:
     }
 
     bool _parse;//配置文件是否解析完成
-    std::string _pluginFolder;//插件配置文件所在目录
+    std::vector<ModuleConifgure> _pluginconfigVec;//插件配置文件
     std::vector<std::string> _plugins;//就绪的插件队列，按照初始化顺序进行排列
     std::vector<std::string> _excludePlugins;//排除的插件，不进行加载
 

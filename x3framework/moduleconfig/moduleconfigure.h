@@ -7,6 +7,11 @@ struct ModuleConifgure
 {
     std::string pluginName;//插件名称
     std::vector<std::string> dependenciesPluginsName;//当前插件依赖的插件
+
+    bool operator==(const ModuleConifgure& compareConf)
+    {
+        return (pluginName == compareConf.pluginName) ? true : false;
+    }
 };
 
 void from_json(const nlohmann::json& modulejson, ModuleConifgure& configure)

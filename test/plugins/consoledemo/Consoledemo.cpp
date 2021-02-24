@@ -6,9 +6,7 @@
 #include <printer/interface/PrintInterface.h>
 
 #include <x3framework/moduleclass/Objptr.hpp>
-#include <x3framework/modulebehavior/Useplugins.h>
-
-#include <x3framework/moduleconfig/pluginsparse.h>
+#include <x3framework/ModuleManager.h>
 
 #include "../x3config.h"
 
@@ -19,7 +17,7 @@
 void test()
 {
     std::vector<std::string> pluginsName;
-    x3plugin::AutoLoadPlugins::getPluginsName(pluginsName);
+    x3plugin::ModuleManager::instance()->getLoadPluginsName(pluginsName);
     printf("---------------------plugin number: %d--------------------\n", (int32_t)pluginsName.size());
     for (const auto& plugin : pluginsName)
     {
@@ -28,22 +26,16 @@ void test()
 
     printf("----------------------------------------------------------\n");
 
-    x3plugin::Object<Creation> plsCls3(c_calculationClsid);
+#if 0
+    x3plugin::Object<Creation> plsCls3;
+    x3plugin::getPlugins<PrintImpl>(c_calculationClsid, plsCls3);
     if (plsCls3)
     {
         printf("The plugin is loaded (%s in %s).\n",
             plsCls3->getInterfaceName(), plsCls3->getClassName());
 
-        x3plugin::Object<Calculate1> plsCls = plsCls3->createSimple();
-        if (plsCls)
-        {
-            int sum = plsCls->add(1, 2);
-            printf("plsCls->add(1, 2): %d\n", sum);
-            sum = plsCls->add(4, 9);
-            printf("plsCls->add(4, 9): %d\n", sum);
-        }
-
-        x3plugin::Object<Calculate1> plsCls1(c_calculationClsid);
+        x3plugin::Object<Calculate1> plsCls1;
+        x3plugin::getPlugins<PrintImpl>(c_calculationClsid, plsCls3);
         if (plsCls1)
         {
             int sum = plsCls1->add(2, 3);
@@ -56,17 +48,7 @@ void test()
     {
         printf("The x3plugin::Object<Calculate1> plugin is not loaded.\n");
     }
-
-    x3plugin::Object<PrintInterface> pltTemp(c_printClsid);
-    if (pltTemp)
-    {
-        int sum = pltTemp->add(1, 7);
-        printf("PrintInterface pltTemp->add(1, 7): %d\n", sum);
-    }
-    else
-    {
-        printf("x3plugin::Object<PrintInterface> pltTemp load failed\n");
-    }
+#endif
 }
 
 
@@ -75,10 +57,6 @@ int main()
     printf("PLUGINS_PATH: %s\n", PLUGINS_PATH);
     printf("CMAKE_CURRENT_SOURCE_DIR: %s\n", CMAKE_CURRENT_SOURCE_DIR);
 
-    PluginsParse pluginsparseDemo(CMAKE_CURRENT_SOURCE_DIR);
-    pluginsparseDemo.parsePluginConf();
-    std::vector<std::string> pluginVec = pluginsparseDemo.getReadyPluginVec();
-
-     x3plugin::AutoLoadPlugins autoload(pluginVec, PLUGINS_PATH);
+    x3plugin::ModuleManager::instance()->loadPlugin(CMAKE_CURRENT_SOURCE_DIR, PLUGINS_PATH);
     test();
 }

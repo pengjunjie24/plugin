@@ -17,7 +17,7 @@ namespace x3plugin
     //获取当前插件空间中的插件实例id
     static const char* getClassId()
     {
-        const ClassEntry cls = ClassEntry::s_classEntry;
+        const ClassEntry& cls = ClassEntry::s_classEntry;
         assert(cls._creator);//插件实体必须初始化
         return cls._clsid.c_str();
     }
@@ -25,7 +25,7 @@ namespace x3plugin
     //通过iid获取clsid
     static bool getDefaultClassId(const int64_t& iid, const char*& clsid)
     {
-        const ClassEntry cls = ClassEntry::s_classEntry;
+        const ClassEntry& cls = ClassEntry::s_classEntry;
         if (cls._hasiid(iid))
         {
             clsid = cls._clsid.c_str();
@@ -44,7 +44,7 @@ namespace x3plugin
             getDefaultClassId(iid, clsid);
         }
 
-        const ClassEntry cls = ClassEntry::s_classEntry;
+        const ClassEntry& cls = ClassEntry::s_classEntry;
         if (cls._clsid == clsid)
         {
             *p = cls._creator(iid);
@@ -57,14 +57,7 @@ namespace x3plugin
     //在当前动态库中释放创建资源
     bool x3InternalDestruct()
     {
-        const ClassEntry cls = ClassEntry::s_classEntry;
-        std::string dynamicid = getClassId();
-        if (cls._clsid != dynamicid)
-        {
-            fprintf(stderr, "free plugin is not match, clsid1 = %s, clsid2 = %s\n",
-                dynamicid.c_str(), cls._clsid.c_str());
-            return false;
-        }
+        const ClassEntry& cls = ClassEntry::s_classEntry;
         if (cls._destructor)
         {
             cls._destructor();
