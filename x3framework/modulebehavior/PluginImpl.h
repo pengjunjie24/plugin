@@ -58,10 +58,7 @@ namespace x3plugin
     bool x3InternalDestruct()
     {
         const ClassEntry& cls = ClassEntry::s_classEntry;
-        if (cls._destructor)
-        {
-            cls._destructor();
-        }
+        cls._destructor();
         return true;
     }
 
@@ -82,7 +79,8 @@ namespace x3plugin
 
         s_hmod = hmod;
         chclsid = getClassId();
-        return true;
+        const ClassEntry& cls = ClassEntry::s_classEntry;
+        return cls._initor();
     }
 
     OUTAPI bool x3FreePlugin()

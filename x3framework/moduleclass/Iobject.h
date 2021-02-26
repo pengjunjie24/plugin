@@ -34,6 +34,8 @@ public: \
 
         virtual const char* getClassId() const = 0;
         virtual const char* getClassName() const = 0;
+
+        virtual bool init() = 0;
     };
 
 }

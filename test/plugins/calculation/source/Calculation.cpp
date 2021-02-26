@@ -11,6 +11,12 @@ Calculation::~Calculation()
     printf("Calculation::~Calculation() disstruct\n");
 }
 
+bool Calculation::init()
+{
+    printf("Calculation::init()\n");
+    return true;
+}
+
 int Calculation::add(int a, int b) const
 {
     _sum += (a + b);

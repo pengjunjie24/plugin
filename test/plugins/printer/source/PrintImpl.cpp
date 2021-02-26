@@ -12,6 +12,12 @@ PrintImpl::~PrintImpl()
     printf("PrintImpl::~PrintImpl distruct\n");
 }
 
+bool PrintImpl::init()
+{
+    printf("PrintImpl::init()\n");
+    return true;
+}
+
 int PrintImpl::add(int a, int b) const
 {
     return a + b;

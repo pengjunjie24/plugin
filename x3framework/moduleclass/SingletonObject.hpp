@@ -21,21 +21,6 @@ namespace x3plugin
     public:
         static IObject* create(int64_t iid)
         {
-            //FIXME: 双检查锁，但由于内存读写reorder不安全
-            //reoeder:
-            //逻辑顺序:
-            //    分配内存——构造函数——赋值运算(传递地址)
-            //实际CPU乱序执行:
-            //    分配内存——赋值运算(传递地址)——构造函数
-            if (!Instance())
-            {
-                std::lock_guard<std::mutex> lock(s_singleMutex);
-                if (!Instance())
-                {
-                    SingletonObject<Cls>* p = new SingletonObject<Cls>();
-                    Instance() = p;
-                }
-            }
             IObject* ret = NULL;
             Instance()->queryObject(iid, &ret);
             return ret;
@@ -55,6 +40,11 @@ namespace x3plugin
                 delete(Instance());
                 Instance() = NULL;
             }
+        }
+
+        static bool initObject()
+        {
+            return Instance()->init();
         }
 
     protected:
@@ -89,6 +79,22 @@ namespace x3plugin
         static SingletonObject<Cls>*& Instance()
         {
             static SingletonObject<Cls>* obj = NULL;
+
+            //FIXME: 双检查锁，但由于内存读写reorder不安全
+            //reoeder:
+            //逻辑顺序:
+            //    分配内存——构造函数——赋值运算(传递地址)
+            //实际CPU乱序执行:
+            //    分配内存——赋值运算(传递地址)——构造函数
+            if (!obj)
+            {
+                std::lock_guard<std::mutex> lock(s_singleMutex);
+                if (!obj)
+                {
+                    SingletonObject<Cls>* p = new SingletonObject<Cls>();
+                    obj = p;
+                }
+            }
             return obj;
         }
 

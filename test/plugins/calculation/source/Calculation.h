@@ -18,6 +18,9 @@ class Calculation
         X3DEFINE_INTERFACE_ENTRY(Creation)
     X3END_CLASS_DECLARE()
 
+public:
+    virtual bool init();
+
 protected:
     Calculation();
     virtual ~Calculation();

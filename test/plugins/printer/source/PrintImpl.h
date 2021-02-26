@@ -8,6 +8,10 @@ class PrintImpl : public PrintInterface
     X3BEGIN_CLASS_DECLARE(PrintImpl, c_printClsid)
         X3DEFINE_INTERFACE_ENTRY(PrintImpl)
     X3END_CLASS_DECLARE()
+
+public:
+    virtual bool init();
+
 protected:
     PrintImpl();
     virtual ~PrintImpl();
